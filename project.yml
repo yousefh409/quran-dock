@@ -1,0 +1,20 @@
+name: QuranDock
+options:
+  bundleIdPrefix: com.qurandock
+  deploymentTarget:
+    macOS: "13.0"
+
+targets:
+  QuranDock:
+    type: application
+    platform: macOS
+    sources:
+      - path: QuranDock
+    info:
+      path: QuranDock/Info.plist
+    settings:
+      base:
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        PRODUCT_BUNDLE_IDENTIFIER: com.qurandock.app
+        INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.music"

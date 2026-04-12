@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuranDock UI Redesign Proposals</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --text: #e8e8f0;
+    --text-secondary: #8888a0;
+    --accent-current: #219B7A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(33,155,122,0.15) 0%, transparent 70%);
+    top: 10%; left: 20%;
+    animation: float1 12s ease-in-out infinite;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(100,80,200,0.1) 0%, transparent 70%);
+    bottom: 10%; right: 15%;
+    animation: float2 15s ease-in-out infinite;
+  }
+
+  @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,-30px)} }
+  @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,40px)} }
+
+  .hero-content {
+    text-align: center;
+    z-index: 1;
+    max-width: 700px;
+    padding: 0 24px;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 100px;
+    background: rgba(33,155,122,0.1);
+    border: 1px solid rgba(33,155,122,0.2);
+    font-size: 12px;
+    font-weight: 600;
+    color: #219B7A;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 32px;
+  }
+
+  .hero h1 {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #ffffff 30%, #219B7A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto 48px;
+  }
+
+  .scroll-hint {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    letter-spacing: 1px;
+    animation: bob 2s ease-in-out infinite;
+  }
+
+  .scroll-hint .arrow { font-size: 18px; }
+
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+
+  /* ============ NAVIGATION ============ */
+  .direction-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 24px;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .nav-btn {
+    padding: 8px 20px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+  }
+
+  .nav-btn:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+  .nav-btn.active { background: rgba(33,155,122,0.15); border-color: rgba(33,155,122,0.3); color: #219B7A; }
+
+  /* ============ SECTION LAYOUT ============ */
+  .direction-section {
+    padding: 100px 24px 120px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+
+  .section-number {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .section-header h2 {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin-bottom: 16px;
+  }
+
+  .section-header .subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ============ MOCKUP CONTAINERS ============ */
+  .mockup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 60px;
+  }
+
+  .mockup-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mockup-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+
+  /* ============ PALETTE STRIP ============ */
+  .palette-section {
+    margin-top: 60px;
+  }
+
+  .palette-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .palette-strip {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .palette-swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .swatch {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.06);
+    transition: transform 0.2s;
+  }
+
+  .swatch:hover { transform: scale(1.1); }
+
+  .swatch-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .swatch-hex {
+    font-size: 9px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* ============ FEATURES LIST ============ */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 60px;
+  }
+
+  .feature-card {
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .feature-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .feature-card p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ============ SEPARATOR ============ */
+  .section-separator {
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  }
+
+  /* ============ DIRECTION A: ETHEREAL GLASS ============ */
+  .mockup-a {
+    width: 420px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .mockup-a-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, rgba(20,30,35,0.92) 0%, rgba(15,20,30,0.95) 100%);
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+  }
+
+  .mockup-a-inner {
+    position: relative;
+    z-index: 1;
+    padding: 0;
+  }
+
+  /* Glass NowPlaying */
+  .glass-np {
+    padding: 20px;
+    position: relative;
+  }
+
+  .glass-np-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(33,155,122,0.06) 0%, transparent 60%);
+  }
+
+  .glass-np-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .glass-np-top {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .glass-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #219B7A 0%, #1a7d62 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 4px 20px rgba(33,155,122,0.3);
+    flex-shrink: 0;
+  }
+
+  .glass-info h3 {
+    font-family: 'Noto Naskh Arabic', 'Amiri', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #f0f0f8;
+    margin-bottom: 2px;
+    direction: rtl;
+  }
+
+  .glass-info .en-name {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+  }
+
+  .glass-info .reciter-name {
+    font-size: 10px;
+    color: rgba(33,155,122,0.7);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .glass-seekbar {
+    margin-bottom: 14px;
+  }
+
+  .glass-progress-track {
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.08);
+    margin-bottom: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-progress-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 38%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #219B7A, #2ec4a0);
+    box-shadow: 0 0 10px rgba(33,155,122,0.4);
+  }
+
+  .glass-progress-knob {
+    position: absolute;
+    right: -5px;
+    top: -3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 8px rgba(33,155,122,0.5);
+  }
+
+  .glass-times {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-family: 'SF Mono', monospace;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .glass-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .glass-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+  }
+
+  .glass-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+  .glass-btn.play {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #219B7A, #1a8a6c);
+    color: white;
+    font-size: 20px;
+    box-shadow: 0 4px 24px rgba(33,155,122,0.35);
+  }
+
+  .glass-btn.play:hover { box-shadow: 0 6px 30px rgba(33,155,122,0.5); transform: scale(1.05); }
+
+  .glass-btn.active { color: #219B7A; }
+
+  /* Glass section toggles */
+  .glass-toggles {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px;
+    margin-bottom: 2px;
+  }
+
+  .glass-toggle {
+    flex: 1;
+    padding: 8px 0;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.4);
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .glass-toggle.active {
+    background: rgba(33,155,122,0.1);
+    border-color: rgba(33,155,122,0.2);
+    color: #219B7A;
+  }
+
+  /* Glass surah list */
+  .glass-list {
+    padding: 8px 12px 16px;
+  }
+
+  .glass-search {
+    width: 100%;
+    padding: 8px 12px 8px 32px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    font-family: inherit;
+    margin-bottom: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .glass-search:focus { border-color: rgba(33,155,122,0.3); }
+
+  .glass-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .glass-row:hover { background: rgba(255,255,255,0.04); }
+  .glass-row.playing { background: rgba(33,155,122,0.08); }
+
+  .glass-row-num {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.4);
+    flex-shrink: 0;
+  }
+
+  .glass-row.playing .glass-row-num {
+    background: rgba(33,155,122,0.2);
+    color: #219B7A;
+  }
+
+  .glass-row-info {
+    flex: 1;
+  }
+
+  .glass-row-info .name {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .glass-row.playing .glass-row-info .name { color: #2ec4a0; }
+
+  .glass-row-info .meta {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .glass-row-arabic {
+    font-family: 'Noto Naskh Arabic', 'Amiri', serif;
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    direction: rtl;
+  }
+
+  .glass-row.playing .glass-row-arabic { color: #219B7A; }
+
+  .glass-playing-icon {
+    font-size: 10px;
+    color: #219B7A;
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+  /* ============ DIRECTION B: LUMINOUS DARK ============ */
+  .mockup-b {
+    width: 420px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0d0d14;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .lum-np {
+    padding: 20px;
+    background: linear-gradient(180deg, #121220 0%, #0d0d14 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lum-np::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .lum-np::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: -20px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(33,155,122,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .lum-np-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .lum-avatar-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .lum-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: white;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .lum-avatar::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid rgba(168,85,247,0.3);
+    animation: ring-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes ring-pulse { 0%,100%{opacity:0.3;transform:scale(1)} 50%{opacity:0.7;transform:scale(1.03)} }
+
+  .lum-info h3 {
+    font-family: 'Noto Naskh Arabic', 'Amiri', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: #f8f8ff;
+    margin-bottom: 2px;
+    direction: rtl;
+  }
+
+  .lum-info .en-name {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+  }
+
+  .lum-info .reciter-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(168,85,247,0.12);
+    color: #c084fc;
+    font-size: 9px;
+    font-weight: 600;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .lum-seekbar {
+    margin-bottom: 16px;
+  }
+
+  .lum-progress-track {
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.06);
+    margin-bottom: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lum-progress-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 55%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #a855f7, #6366f1, #219B7A);
+    background-size: 200% 100%;
+    animation: gradient-shift 4s ease infinite;
+  }
+
+  @keyframes gradient-shift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+  .lum-times {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-family: 'SF Mono', monospace;
+    color: rgba(255,255,255,0.25);
+  }
+
+  .lum-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  .lum-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.45);
+    font-size: 15px;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .lum-btn:hover { color: white; background: rgba(255,255,255,0.06); }
+
+  .lum-btn.play {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #219B7A 100%);
+    color: white;
+    font-size: 22px;
+    box-shadow: 0 4px 30px rgba(168,85,247,0.3), 0 4px 30px rgba(33,155,122,0.15);
+  }
+
+  .lum-btn.play:hover { transform: scale(1.05); box-shadow: 0 6px 40px rgba(168,85,247,0.4); }
+
+  /* Lum Surah Row */
+  .lum-list { padding: 8px 12px 16px; }
+
+  .lum-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .lum-row:hover { background: rgba(255,255,255,0.03); }
+  .lum-row.playing { background: rgba(168,85,247,0.06); }
+
+  .lum-row.playing::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #a855f7, #219B7A);
+  }
+
+  .lum-row-num {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.35);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .lum-row.playing .lum-row-num {
+    background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15));
+    color: #c084fc;
+  }
+
+  .lum-row-info { flex: 1; }
+  .lum-row-info .name { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.8); }
+  .lum-row.playing .lum-row-info .name { color: #c084fc; }
+  .lum-row-info .meta { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 1px; }
+
+  .lum-row-arabic {
+    font-family: 'Noto Naskh Arabic', 'Amiri', serif;
+    font-size: 15px;
+    color: rgba(255,255,255,0.5);
+    direction: rtl;
+  }
+  .lum-row.playing .lum-row-arabic { color: rgba(168,85,247,0.8); }
+
+  /* Lum toggles */
+  .lum-toggles {
+    display: flex;
+    gap: 6px;
+    padding: 0 16px;
+    margin-bottom: 2px;
+  }
+
+  .lum-toggle {
+    flex: 1;
+    padding: 8px 0;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.35);
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .lum-toggle.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(99,102,241,0.12));
+    color: #c084fc;
+  }
+
+  /* ============ DIRECTION C: SACRED GEOMETRY ============ */
+  .mockup-c {
+    width: 420px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0f1117;
+    border: 1px solid rgba(195,165,100,0.12);
+  }
+
+  .sacred-np {
+    padding: 24px 20px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sacred-np::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(195,165,100,0.04) 0%, transparent 50%);
+  }
+
+  /* Geometric pattern overlay */
+  .sacred-pattern {
+    position: absolute;
+    top: 0; right: 0;
+    width: 200px;
+    height: 200px;
+    opacity: 0.04;
+    background-image:
+      repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg 30deg, rgba(195,165,100,1) 30deg 60deg);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(circle at top right, black 0%, transparent 70%);
+    -webkit-mask-image: radial-gradient(circle at top right, black 0%, transparent 70%);
+  }
+
+  .sacred-np-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sacred-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .sacred-avatar {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #c3a564 0%, #8b7034 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a2e;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .sacred-avatar::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 14px;
+    border: 1px solid rgba(195,165,100,0.3);
+  }
+
+  .sacred-info h3 {
+    font-family: 'Noto Naskh Arabic', 'Amiri', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #f5f0e0;
+    margin-bottom: 2px;
+    direction: rtl;
+  }
+
+  .sacred-info .en-name {
+    font-size: 12px;
+    color: rgba(195,165,100,0.6);
+    font-weight: 400;
+  }
+
+  .sacred-info .reciter-name {
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 2px;
+  }
+
+  .sacred-seekbar { margin-bottom: 16px; }
+
+  .sacred-progress-track {
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(195,165,100,0.08);
+    margin-bottom: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sacred-progress-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 42%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #c3a564, #d4b876);
+  }
+
+  .sacred-times {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-family: 'SF Mono', monospace;
+    color: rgba(195,165,100,0.3);
+  }
+
+  .sacred-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .sacred-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.35);
+    font-size: 15px;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .sacred-btn:hover { color: #c3a564; }
+
+  .sacred-btn.play {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #c3a564, #a88b3d);
+    color: #1a1a2e;
+    font-size: 22px;
+    box-shadow: 0 4px 24px rgba(195,165,100,0.25);
+    border-radius: 14px;
+  }
+
+  .sacred-btn.play:hover { transform: scale(1.05); box-shadow: 0 6px 32px rgba(195,165,100,0.35); }
+
+  /* Sacred surah list */
+  .sacred-list { padding: 8px 12px 16px; }
+
+  .sacred-toggles {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px;
+    margin-bottom: 2px;
+  }
+
+  .sacred-toggle {
+    flex: 1;
+    padding: 8px 0;
+    border-radius: 10px;
+    border: 1px solid rgba(195,165,100,0.06);
+    background: rgba(195,165,100,0.03);
+    color: rgba(255,255,255,0.35);
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .sacred-toggle.active {
+    background: rgba(195,165,100,0.08);
+    border-color: rgba(195,165,100,0.15);
+    color: #c3a564;
+  }
+
+  .sacred-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .sacred-row:hover { background: rgba(195,165,100,0.04); }
+  .sacred-row.playing { background: rgba(195,165,100,0.06); }
+
+  .sacred-row-num {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: rgba(255,255,255,0.3);
+    position: relative;
+  }
+
+  /* Octagonal number badge */
+  .sacred-row-num::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(195,165,100,0.06);
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+  }
+
+  .sacred-row.playing .sacred-row-num { color: #c3a564; }
+  .sacred-row.playing .sacred-row-num::before { background: rgba(195,165,100,0.12); }
+
+  .sacred-row-info { flex: 1; }
+  .sacred-row-info .name { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.8); }
+  .sacred-row.playing .sacred-row-info .name { color: #d4b876; }
+  .sacred-row-info .meta { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 1px; }
+
+  .sacred-row-arabic {
+    font-family: 'Noto Naskh Arabic', 'Amiri', serif;
+    font-size: 16px;
+    color: rgba(255,255,255,0.5);
+    direction: rtl;
+  }
+  .sacred-row.playing .sacred-row-arabic { color: #c3a564; }
+
+  .sacred-ornament {
+    font-size: 10px;
+    color: rgba(195,165,100,0.4);
+  }
+
+  /* ============ COMPARISON TABLE ============ */
+  .comparison-section {
+    padding: 100px 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .comparison-section h2 {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 48px;
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .comparison-table th, .comparison-table td {
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .comparison-table th {
+    background: rgba(255,255,255,0.03);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+  }
+
+  .comparison-table td { color: rgba(255,255,255,0.7); }
+
+  .comparison-table tr:last-child td { border-bottom: none; }
+
+  .comparison-table .col-a { color: #2ec4a0; }
+  .comparison-table .col-b { color: #c084fc; }
+  .comparison-table .col-c { color: #c3a564; }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    text-align: center;
+    padding: 80px 24px;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .footer .cta {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 12px 28px;
+    border-radius: 100px;
+    background: linear-gradient(135deg, #219B7A, #1a8a6c);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(33,155,122,0.3);
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+  }
+
+  .footer .cta:hover { transform: translateY(-2px); box-shadow: 0 6px 30px rgba(33,155,122,0.4); }
+
+  /* ============ RECITER CARD MOCKUPS ============ */
+  .reciter-mockup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .glass-reciter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .glass-reciter:hover { background: rgba(255,255,255,0.04); }
+  .glass-reciter.selected { background: rgba(33,155,122,0.08); }
+
+  .glass-reciter-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .glass-reciter-info { flex: 1; }
+  .glass-reciter-info .name { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.85); }
+  .glass-reciter-info .detail { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+  .glass-reciter .check { color: #219B7A; font-size: 14px; }
+
+  .lum-reciter { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; }
+  .lum-reciter:hover { background: rgba(255,255,255,0.03); }
+  .lum-reciter.selected { background: rgba(168,85,247,0.06); }
+
+  .lum-reciter-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .lum-reciter-info { flex: 1; }
+  .lum-reciter-info .name { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.85); }
+  .lum-reciter-info .detail { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 1px; }
+  .lum-reciter .check { color: #a855f7; font-size: 14px; }
+  .lum-reciter .badge { font-size: 9px; padding: 2px 6px; border-radius: 5px; background: rgba(168,85,247,0.1); color: #c084fc; }
+
+  .sacred-reciter { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; }
+  .sacred-reciter:hover { background: rgba(195,165,100,0.03); }
+  .sacred-reciter.selected { background: rgba(195,165,100,0.06); }
+
+  .sacred-reciter-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .sacred-reciter-avatar::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 11px;
+    border: 1px solid rgba(195,165,100,0.15);
+  }
+
+  .sacred-reciter-info { flex: 1; }
+  .sacred-reciter-info .name { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.85); }
+  .sacred-reciter-info .detail { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 1px; }
+  .sacred-reciter .check { color: #c3a564; font-size: 14px; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .mockup-grid { grid-template-columns: 1fr; }
+    .features { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 42px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">Design Proposals</div>
+    <h1>QuranDock<br>Reimagined</h1>
+    <p>Three distinct design directions to elevate the listening experience with modern glass UI, luminous gradients, and sacred aesthetics.</p>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll to explore</span>
+    <span class="arrow">&darr;</span>
+  </div>
+</section>
+
+<!-- ========== NAV ========== -->
+<nav class="direction-nav" id="nav">
+  <button class="nav-btn active" onclick="scrollTo_('dirA')">A &middot; Ethereal Glass</button>
+  <button class="nav-btn" onclick="scrollTo_('dirB')">B &middot; Luminous Dark</button>
+  <button class="nav-btn" onclick="scrollTo_('dirC')">C &middot; Sacred Gold</button>
+  <button class="nav-btn" onclick="scrollTo_('compare')">Compare</button>
+</nav>
+
+<!-- ========== DIRECTION A: ETHEREAL GLASS ========== -->
+<section class="direction-section" id="dirA">
+  <div class="section-header">
+    <span class="section-number" style="color: #219B7A;">Direction A</span>
+    <h2 style="background: linear-gradient(135deg, #fff 30%, #2ec4a0 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Ethereal Glass</h2>
+    <p class="subtitle">
+      Deep frosted glass layers with soft teal luminance. Keeps your current accent color identity but adds depth, translucency, and refined spacing. The most natural evolution of the current design.
+    </p>
+  </div>
+
+  <div class="mockup-grid">
+    <!-- Full NowPlaying -->
+    <div class="mockup-container">
+      <div class="mockup-label">Now Playing &mdash; Full View</div>
+      <div class="mockup-a">
+        <div class="mockup-a-bg"></div>
+        <div class="mockup-a-inner">
+          <div class="glass-np">
+            <div class="glass-np-bg"></div>
+            <div class="glass-np-content">
+              <div class="glass-np-top">
+                <div class="glass-avatar">MS</div>
+                <div class="glass-info" style="flex:1">
+                  <h3>البقرة</h3>
+                  <div class="en-name">Al-Baqarah &middot; The Cow</div>
+                  <div class="reciter-name">Mishary Rashid Alafasy</div>
+                </div>
+                <div style="font-size:9px; color:rgba(33,155,122,0.6); padding:3px 8px; border-radius:6px; border:1px solid rgba(33,155,122,0.15); align-self:start;">Hafs</div>
+              </div>
+              <div class="glass-seekbar">
+                <div class="glass-progress-track">
+                  <div class="glass-progress-fill">
+                    <div class="glass-progress-knob"></div>
+                  </div>
+                </div>
+                <div class="glass-times">
+                  <span>14:23</span>
+                  <span>37:48</span>
+                </div>
+              </div>
+              <div class="glass-controls">
+                <button class="glass-btn active" title="Repeat">&#8635;</button>
+                <button class="glass-btn" title="Skip back 15s">-15</button>
+                <button class="glass-btn" title="Previous">&#9198;</button>
+                <button class="glass-btn play" title="Play/Pause">&#9654;</button>
+                <button class="glass-btn" title="Next">&#9197;</button>
+                <button class="glass-btn" title="Skip forward 15s">+15</button>
+                <button class="glass-btn" style="font-size:10px; font-weight:600;">1x</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding: 0 16px; margin: 4px 0;">
+            <div style="height:1px; background:rgba(255,255,255,0.04);"></div>
+          </div>
+
+          <div class="glass-toggles">
+            <button class="glass-toggle active">&#128214; Surahs</button>
+            <button class="glass-toggle">&#128101; Reciters</button>
+          </div>
+
+          <div class="glass-list">
+            <input class="glass-search" type="text" placeholder="&#128269;  Search surahs..." readonly>
+            <div class="glass-row">
+              <div class="glass-row-num">1</div>
+              <div class="glass-row-info">
+                <div class="name">Al-Fatihah</div>
+                <div class="meta">The Opener &middot; 7 ayahs</div>
+              </div>
+              <div class="glass-row-arabic">الفاتحة</div>
+            </div>
+            <div class="glass-row playing">
+              <div class="glass-row-num">2</div>
+              <div class="glass-row-info">
+                <div class="name">Al-Baqarah</div>
+                <div class="meta">The Cow &middot; 286 ayahs</div>
+              </div>
+              <div class="glass-row-arabic">البقرة</div>
+              <div class="glass-playing-icon">&#9660; &#9660; &#9660;</div>
+            </div>
+            <div class="glass-row">
+              <div class="glass-row-num">3</div>
+              <div class="glass-row-info">
+                <div class="name">Ali 'Imran</div>
+                <div class="meta">Family of Imran &middot; 200 ayahs</div>
+              </div>
+              <div class="glass-row-arabic">آل عمران</div>
+            </div>
+            <div class="glass-row">
+              <div class="glass-row-num">4</div>
+              <div class="glass-row-info">
+                <div class="name">An-Nisa</div>
+                <div class="meta">The Women &middot; 176 ayahs</div>
+              </div>
+              <div class="glass-row-arabic">النساء</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reciter List -->
+    <div class="mockup-container">
+      <div class="mockup-label">Reciter Selection</div>
+      <div class="mockup-a" style="padding: 16px;">
+        <div class="mockup-a-bg"></div>
+        <div class="mockup-a-inner">
+          <div style="padding: 4px 0 12px;">
+            <input class="glass-search" type="text" placeholder="&#128269;  Search reciters..." readonly>
+          </div>
+          <div style="font-size:10px; font-weight:600; color:rgba(33,155,122,0.5); letter-spacing:1px; text-transform:uppercase; padding:0 4px 8px;">Favorites</div>
+          <div class="reciter-mockup">
+            <div class="glass-reciter selected">
+              <div class="glass-reciter-avatar" style="background:linear-gradient(135deg,#219B7A,#1a7d62); color:white;">MA</div>
+              <div class="glass-reciter-info">
+                <div class="name">Mishary Rashid Alafasy</div>
+                <div class="detail">114 surahs &middot; 3 recordings</div>
+              </div>
+              <div class="check">&#10003;</div>
+            </div>
+            <div class="glass-reciter">
+              <div class="glass-reciter-avatar" style="background:rgba(33,155,122,0.12); color:#219B7A;">AS</div>
+              <div class="glass-reciter-info">
+                <div class="name">Abdul Rahman Al-Sudais</div>
+                <div class="detail">114 surahs &middot; 2 recordings</div>
+              </div>
+            </div>
+          </div>
+          <div style="height:1px; background:rgba(255,255,255,0.04); margin: 12px 0;"></div>
+          <div style="font-size:10px; font-weight:600; color:rgba(255,255,255,0.2); letter-spacing:1px; text-transform:uppercase; padding:0 4px 8px;">All Reciters</div>
+          <div class="reciter-mockup">
+            <div class="glass-reciter">
+              <div class="glass-reciter-avatar" style="background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.5);">AH</div>
+              <div class="glass-reciter-info">
+                <div class="name">Ahmed Al Hawashi</div>
+                <div class="detail">78 surahs</div>
+              </div>
+            </div>
+            <div class="glass-reciter">
+              <div class="glass-reciter-avatar" style="background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.5);">BA</div>
+              <div class="glass-reciter-info">
+                <div class="name">Bandar Baleela</div>
+                <div class="detail">114 surahs</div>
+              </div>
+            </div>
+            <div class="glass-reciter">
+              <div class="glass-reciter-avatar" style="background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.5);">FA</div>
+              <div class="glass-reciter-info">
+                <div class="name">Fares Abbad</div>
+                <div class="detail">114 surahs &middot; 2 recordings</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Palette -->
+  <div class="palette-section">
+    <h3>Color Palette</h3>
+    <div class="palette-strip">
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#219B7A;"></div>
+        <div class="swatch-label">Primary</div>
+        <div class="swatch-hex">#219B7A</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#2ec4a0;"></div>
+        <div class="swatch-label">Light Teal</div>
+        <div class="swatch-hex">#2EC4A0</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#14202a;"></div>
+        <div class="swatch-label">Surface</div>
+        <div class="swatch-hex">#14202A</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#0f161e;"></div>
+        <div class="swatch-label">Background</div>
+        <div class="swatch-hex">#0F161E</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.15);"></div>
+        <div class="swatch-label">Text</div>
+        <div class="swatch-hex">85% White</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.1);"></div>
+        <div class="swatch-label">Secondary</div>
+        <div class="swatch-hex">35% White</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature-card">
+      <h4>Frosted Glass Layers</h4>
+      <p>Multi-layered translucent panels with subtle depth via box shadows and gradient overlays. Uses SwiftUI's .ultraThinMaterial with custom tints.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Rounded Corners Everywhere</h4>
+      <p>Number badges become rounded squares (8-12px radius) instead of diamonds. More cohesive with macOS design language. Avatar also becomes rounded rectangle.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Glowing Progress Bar</h4>
+      <p>Seek bar gains a soft teal glow effect with a luminous knob. The fill uses a gradient from primary to light teal for visual interest.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Subtle Section Reveals</h4>
+      <p>Sections animate in with spring physics + opacity. Search field has a frosted glass appearance matching the overall theme.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Teal Accent Glow</h4>
+      <p>The now-playing area gains a subtle teal gradient wash at the top, creating a warm ambient glow that indicates active playback.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Playing State Animation</h4>
+      <p>Currently playing surah gets a pulsing audio indicator icon with a soft glow, replacing the static speaker icon.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-separator"></div>
+
+<!-- ========== DIRECTION B: LUMINOUS DARK ========== -->
+<section class="direction-section" id="dirB">
+  <div class="section-header">
+    <span class="section-number" style="color: #a855f7;">Direction B</span>
+    <h2 style="background: linear-gradient(135deg, #fff 30%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Luminous Dark</h2>
+    <p class="subtitle">
+      Ultra-dark canvas with vibrant purple-indigo-teal gradients. Animated gradient progress bar, glowing accent orbs, and edge-lit active states. Bold and cinematic.
+    </p>
+  </div>
+
+  <div class="mockup-grid">
+    <div class="mockup-container">
+      <div class="mockup-label">Now Playing &mdash; Full View</div>
+      <div class="mockup-b">
+        <div class="lum-np">
+          <div class="lum-np-content">
+            <div class="lum-avatar-area">
+              <div class="lum-avatar">MS</div>
+              <div class="lum-info" style="flex:1">
+                <h3>البقرة</h3>
+                <div class="en-name">Al-Baqarah &middot; The Cow</div>
+                <div class="reciter-tag">MISHARY RASHID ALAFASY</div>
+              </div>
+            </div>
+
+            <div class="lum-seekbar">
+              <div class="lum-progress-track">
+                <div class="lum-progress-fill"></div>
+              </div>
+              <div class="lum-times">
+                <span>20:48</span>
+                <span>37:48</span>
+              </div>
+            </div>
+
+            <div class="lum-controls">
+              <button class="lum-btn" style="color:#a855f7;" title="Repeat">&#8635;</button>
+              <button class="lum-btn" title="Skip back">-15</button>
+              <button class="lum-btn" title="Previous">&#9198;</button>
+              <button class="lum-btn play" title="Play/Pause">&#9654;</button>
+              <button class="lum-btn" title="Next">&#9197;</button>
+              <button class="lum-btn" title="Skip forward">+15</button>
+              <button class="lum-btn" style="font-size:10px; font-weight:600;">1x</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 0 16px; margin: 4px 0;">
+          <div style="height:1px; background:rgba(255,255,255,0.03);"></div>
+        </div>
+
+        <div class="lum-toggles">
+          <button class="lum-toggle active">&#128214; Surahs</button>
+          <button class="lum-toggle">&#128101; Reciters</button>
+        </div>
+
+        <div class="lum-list">
+          <div class="lum-row">
+            <div class="lum-row-num">1</div>
+            <div class="lum-row-info">
+              <div class="name">Al-Fatihah</div>
+              <div class="meta">The Opener &middot; 7 ayahs</div>
+            </div>
+            <div class="lum-row-arabic">الفاتحة</div>
+          </div>
+          <div class="lum-row playing">
+            <div class="lum-row-num">2</div>
+            <div class="lum-row-info">
+              <div class="name">Al-Baqarah</div>
+              <div class="meta">The Cow &middot; 286 ayahs</div>
+            </div>
+            <div class="lum-row-arabic">البقرة</div>
+            <div style="width:18px; display:flex; gap:2px; align-items:flex-end;">
+              <div style="width:3px; height:10px; border-radius:1px; background:#a855f7; animation: bar1 0.8s ease infinite;"></div>
+              <div style="width:3px; height:14px; border-radius:1px; background:#6366f1; animation: bar2 0.6s ease infinite;"></div>
+              <div style="width:3px; height:8px; border-radius:1px; background:#219B7A; animation: bar3 0.7s ease infinite;"></div>
+            </div>
+          </div>
+          <div class="lum-row">
+            <div class="lum-row-num">3</div>
+            <div class="lum-row-info">
+              <div class="name">Ali 'Imran</div>
+              <div class="meta">Family of Imran &middot; 200 ayahs</div>
+            </div>
+            <div class="lum-row-arabic">آل عمران</div>
+          </div>
+          <div class="lum-row">
+            <div class="lum-row-num">4</div>
+            <div class="lum-row-info">
+              <div class="name">An-Nisa</div>
+              <div class="meta">The Women &middot; 176 ayahs</div>
+            </div>
+            <div class="lum-row-arabic">النساء</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reciter List -->
+    <div class="mockup-container">
+      <div class="mockup-label">Reciter Selection</div>
+      <div class="mockup-b" style="padding: 16px;">
+        <div style="padding: 4px 0 12px;">
+          <input class="glass-search" type="text" placeholder="&#128269;  Search reciters..." readonly style="border-color:rgba(168,85,247,0.08); background:rgba(168,85,247,0.03);">
+        </div>
+        <div style="font-size:10px; font-weight:600; color:rgba(168,85,247,0.5); letter-spacing:1px; text-transform:uppercase; padding:0 4px 8px;">Favorites</div>
+        <div class="reciter-mockup">
+          <div class="lum-reciter selected">
+            <div class="lum-reciter-avatar" style="background:linear-gradient(135deg,#a855f7,#6366f1); color:white;">MA</div>
+            <div class="lum-reciter-info">
+              <div class="name">Mishary Rashid Alafasy</div>
+              <div class="detail">114 surahs <span class="badge">3 recordings</span></div>
+            </div>
+            <div class="check">&#10003;</div>
+          </div>
+          <div class="lum-reciter">
+            <div class="lum-reciter-avatar" style="background:rgba(168,85,247,0.1); color:#c084fc;">AS</div>
+            <div class="lum-reciter-info">
+              <div class="name">Abdul Rahman Al-Sudais</div>
+              <div class="detail">114 surahs <span class="badge">2 recordings</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="height:1px; background:rgba(255,255,255,0.03); margin: 12px 0;"></div>
+        <div style="font-size:10px; font-weight:600; color:rgba(255,255,255,0.15); letter-spacing:1px; text-transform:uppercase; padding:0 4px 8px;">All Reciters</div>
+        <div class="reciter-mockup">
+          <div class="lum-reciter">
+            <div class="lum-reciter-avatar" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.4);">AH</div>
+            <div class="lum-reciter-info">
+              <div class="name">Ahmed Al Hawashi</div>
+              <div class="detail">78 surahs</div>
+            </div>
+          </div>
+          <div class="lum-reciter">
+            <div class="lum-reciter-avatar" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.4);">BA</div>
+            <div class="lum-reciter-info">
+              <div class="name">Bandar Baleela</div>
+              <div class="detail">114 surahs</div>
+            </div>
+          </div>
+          <div class="lum-reciter">
+            <div class="lum-reciter-avatar" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.4);">FA</div>
+            <div class="lum-reciter-info">
+              <div class="name">Fares Abbad</div>
+              <div class="detail">114 surahs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Palette -->
+  <div class="palette-section">
+    <h3>Color Palette</h3>
+    <div class="palette-strip">
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#a855f7;"></div>
+        <div class="swatch-label">Purple</div>
+        <div class="swatch-hex">#A855F7</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#6366f1;"></div>
+        <div class="swatch-label">Indigo</div>
+        <div class="swatch-hex">#6366F1</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#219B7A;"></div>
+        <div class="swatch-label">Teal</div>
+        <div class="swatch-hex">#219B7A</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#121220;"></div>
+        <div class="swatch-label">Surface</div>
+        <div class="swatch-hex">#121220</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#0d0d14;"></div>
+        <div class="swatch-label">Background</div>
+        <div class="swatch-hex">#0D0D14</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#c084fc;"></div>
+        <div class="swatch-label">Light Purple</div>
+        <div class="swatch-hex">#C084FC</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature-card">
+      <h4>Animated Gradient Bar</h4>
+      <p>The seek bar uses a shifting purple-indigo-teal gradient that slowly animates. Creates a living, breathing feel to the playback indicator.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Ambient Light Orbs</h4>
+      <p>Soft radial gradients float behind the now-playing area, creating depth and atmosphere. Purple top-right, teal bottom-left.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Edge-Lit Active Row</h4>
+      <p>Currently playing surah gets a vertical gradient accent bar on the left edge, transitioning from purple to teal. Eye-catching without being loud.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Animated Audio Bars</h4>
+      <p>The playing indicator uses 3 animated bars (purple, indigo, teal) that bounce in rhythm, replacing the static speaker icon.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Pulsing Avatar Ring</h4>
+      <p>Selected reciter's avatar gets a subtle pulsing border ring that breathes slowly, indicating active selection and adding life.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Tag-Style Metadata</h4>
+      <p>Reciter name becomes a styled tag/badge. Recording counts use pill-shaped badges with accent background. More visual hierarchy.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-separator"></div>
+
+<!-- ========== DIRECTION C: SACRED GOLD ========== -->
+<section class="direction-section" id="dirC">
+  <div class="section-header">
+    <span class="section-number" style="color: #c3a564;">Direction C</span>
+    <h2 style="background: linear-gradient(135deg, #fff 30%, #c3a564 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Sacred Gold</h2>
+    <p class="subtitle">
+      Rich dark canvas with warm gold accents inspired by traditional Islamic art. Octagonal geometry, ornamental patterns, and a reverent, premium feel befitting the Quran.
+    </p>
+  </div>
+
+  <div class="mockup-grid">
+    <div class="mockup-container">
+      <div class="mockup-label">Now Playing &mdash; Full View</div>
+      <div class="mockup-c">
+        <div class="sacred-np">
+          <div class="sacred-pattern"></div>
+          <div class="sacred-np-content">
+            <div class="sacred-top">
+              <div class="sacred-avatar">MS</div>
+              <div class="sacred-info" style="flex:1">
+                <h3>البقرة</h3>
+                <div class="en-name">Al-Baqarah &middot; The Cow</div>
+                <div class="reciter-name">Mishary Rashid Alafasy</div>
+              </div>
+              <div style="font-size:9px; color:rgba(195,165,100,0.6); padding:3px 8px; border-radius:6px; border:1px solid rgba(195,165,100,0.12); align-self:start;">Hafs</div>
+            </div>
+
+            <div class="sacred-seekbar">
+              <div class="sacred-progress-track">
+                <div class="sacred-progress-fill"></div>
+              </div>
+              <div class="sacred-times">
+                <span>16:05</span>
+                <span>37:48</span>
+              </div>
+            </div>
+
+            <div class="sacred-controls">
+              <button class="sacred-btn" style="color:#c3a564;" title="Repeat">&#8635;</button>
+              <button class="sacred-btn" title="Skip back">-15</button>
+              <button class="sacred-btn" title="Previous">&#9198;</button>
+              <button class="sacred-btn play" title="Play/Pause">&#9654;</button>
+              <button class="sacred-btn" title="Next">&#9197;</button>
+              <button class="sacred-btn" title="Skip forward">+15</button>
+              <button class="sacred-btn" style="font-size:10px; font-weight:600;">1x</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 0 16px; margin: 4px 0;">
+          <div style="height:1px; background:rgba(195,165,100,0.06);"></div>
+        </div>
+
+        <div class="sacred-toggles">
+          <button class="sacred-toggle active">&#128214; Surahs</button>
+          <button class="sacred-toggle">&#128101; Reciters</button>
+        </div>
+
+        <div class="sacred-list">
+          <div class="sacred-row">
+            <div class="sacred-row-num"><span style="position:relative;z-index:1;">1</span></div>
+            <div class="sacred-row-info">
+              <div class="name">Al-Fatihah</div>
+              <div class="meta">The Opener &middot; 7 ayahs</div>
+            </div>
+            <div class="sacred-row-arabic">الفاتحة</div>
+          </div>
+          <div class="sacred-row playing">
+            <div class="sacred-row-num"><span style="position:relative;z-index:1;">2</span></div>
+            <div class="sacred-row-info">
+              <div class="name">Al-Baqarah</div>
+              <div class="meta">The Cow &middot; 286 ayahs</div>
+            </div>
+            <div class="sacred-row-arabic">البقرة</div>
+            <div class="sacred-ornament">&#10022;</div>
+          </div>
+          <div class="sacred-row">
+            <div class="sacred-row-num"><span style="position:relative;z-index:1;">3</span></div>
+            <div class="sacred-row-info">
+              <div class="name">Ali 'Imran</div>
+              <div class="meta">Family of Imran &middot; 200 ayahs</div>
+            </div>
+            <div class="sacred-row-arabic">آل عمران</div>
+          </div>
+          <div class="sacred-row">
+            <div class="sacred-row-num"><span style="position:relative;z-index:1;">4</span></div>
+            <div class="sacred-row-info">
+              <div class="name">An-Nisa</div>
+              <div class="meta">The Women &middot; 176 ayahs</div>
+            </div>
+            <div class="sacred-row-arabic">النساء</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reciter List -->
+    <div class="mockup-container">
+      <div class="mockup-label">Reciter Selection</div>
+      <div class="mockup-c" style="padding: 16px;">
+        <div style="padding: 4px 0 12px;">
+          <input class="glass-search" type="text" placeholder="&#128269;  Search reciters..." readonly style="border-color:rgba(195,165,100,0.08); background:rgba(195,165,100,0.03);">
+        </div>
+        <div style="font-size:10px; font-weight:600; color:rgba(195,165,100,0.5); letter-spacing:1px; text-transform:uppercase; padding:0 4px 8px;">Favorites</div>
+        <div class="reciter-mockup">
+          <div class="sacred-reciter selected">
+            <div class="sacred-reciter-avatar" style="background:linear-gradient(135deg,#c3a564,#8b7034); color:#1a1a2e;">MA</div>
+            <div class="sacred-reciter-info">
+              <div class="name">Mishary Rashid Alafasy</div>
+              <div class="detail">114 surahs &middot; 3 recordings</div>
+            </div>
+            <div class="check">&#10003;</div>
+          </div>
+          <div class="sacred-reciter">
+            <div class="sacred-reciter-avatar" style="background:rgba(195,165,100,0.08); color:#c3a564;">AS</div>
+            <div class="sacred-reciter-info">
+              <div class="name">Abdul Rahman Al-Sudais</div>
+              <div class="detail">114 surahs &middot; 2 recordings</div>
+            </div>
+          </div>
+        </div>
+        <div style="height:1px; background:rgba(195,165,100,0.06); margin: 12px 0;"></div>
+        <div style="font-size:10px; font-weight:600; color:rgba(255,255,255,0.15); letter-spacing:1px; text-transform:uppercase; padding:0 4px 8px;">All Reciters</div>
+        <div class="reciter-mockup">
+          <div class="sacred-reciter">
+            <div class="sacred-reciter-avatar" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.4);">AH</div>
+            <div class="sacred-reciter-info">
+              <div class="name">Ahmed Al Hawashi</div>
+              <div class="detail">78 surahs</div>
+            </div>
+          </div>
+          <div class="sacred-reciter">
+            <div class="sacred-reciter-avatar" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.4);">BA</div>
+            <div class="sacred-reciter-info">
+              <div class="name">Bandar Baleela</div>
+              <div class="detail">114 surahs</div>
+            </div>
+          </div>
+          <div class="sacred-reciter">
+            <div class="sacred-reciter-avatar" style="background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.4);">FA</div>
+            <div class="sacred-reciter-info">
+              <div class="name">Fares Abbad</div>
+              <div class="detail">114 surahs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Palette -->
+  <div class="palette-section">
+    <h3>Color Palette</h3>
+    <div class="palette-strip">
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#c3a564;"></div>
+        <div class="swatch-label">Gold</div>
+        <div class="swatch-hex">#C3A564</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#d4b876;"></div>
+        <div class="swatch-label">Light Gold</div>
+        <div class="swatch-hex">#D4B876</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#8b7034;"></div>
+        <div class="swatch-label">Deep Gold</div>
+        <div class="swatch-hex">#8B7034</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#0f1117;"></div>
+        <div class="swatch-label">Background</div>
+        <div class="swatch-hex">#0F1117</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:#f5f0e0; border-color: rgba(255,255,255,0.15);"></div>
+        <div class="swatch-label">Warm White</div>
+        <div class="swatch-hex">#F5F0E0</div>
+      </div>
+      <div class="palette-swatch">
+        <div class="swatch" style="background:rgba(195,165,100,0.3);"></div>
+        <div class="swatch-label">Muted Gold</div>
+        <div class="swatch-hex">30% Gold</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature-card">
+      <h4>Islamic Geometric Patterns</h4>
+      <p>Subtle repeating geometric patterns in the background of the now-playing area, inspired by traditional Islamic art. Very low opacity so it doesn't distract.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Octagonal Number Badges</h4>
+      <p>Surah numbers use an 8-sided (octagonal) shape via CSS clip-path, referencing Islamic architectural motifs. Replaces the diamond shape.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Rounded Square Play Button</h4>
+      <p>The play button uses a rounded square (squircle) instead of a circle, giving it a premium, app-icon feel. Gold gradient fill with warm shadow.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Warm Gold Typography</h4>
+      <p>Arabic text uses warm white (#F5F0E0) instead of pure white, creating a parchment-like warmth. English text stays neutral for readability.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Ornamental Accents</h4>
+      <p>Small decorative star ornaments (&#10022;) appear as the playing indicator, referencing Islamic decorative tradition. Elegant and culturally resonant.</p>
+    </div>
+    <div class="feature-card">
+      <h4>Gold Border Accents</h4>
+      <p>Selected reciter avatars get a thin gold border. The overall container has a subtle gold-tinted border. Premium, jewelry-like feel.</p>
+    </div>
+  </div>
+</section>
+
+<div class="section-separator"></div>
+
+<!-- ========== COMPARISON ========== -->
+<section class="comparison-section" id="compare">
+  <h2>Side-by-Side Comparison</h2>
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th>Aspect</th>
+        <th class="col-a">A &middot; Ethereal Glass</th>
+        <th class="col-b">B &middot; Luminous Dark</th>
+        <th class="col-c">C &middot; Sacred Gold</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Vibe</td>
+        <td class="col-a">Clean, modern, Apple-native</td>
+        <td class="col-b">Bold, cinematic, futuristic</td>
+        <td class="col-c">Reverent, premium, traditional</td>
+      </tr>
+      <tr>
+        <td>Primary Color</td>
+        <td class="col-a">Teal (#219B7A)</td>
+        <td class="col-b">Purple to Teal gradient</td>
+        <td class="col-c">Gold (#C3A564)</td>
+      </tr>
+      <tr>
+        <td>Key Technique</td>
+        <td class="col-a">Frosted glass layers + glow</td>
+        <td class="col-b">Ambient orbs + gradient shifts</td>
+        <td class="col-c">Geometric patterns + warm tones</td>
+      </tr>
+      <tr>
+        <td>Number Badge</td>
+        <td class="col-a">Rounded square</td>
+        <td class="col-b">Rounded square with gradient</td>
+        <td class="col-c">Octagonal (8-sided)</td>
+      </tr>
+      <tr>
+        <td>Avatar Shape</td>
+        <td class="col-a">Rounded rectangle</td>
+        <td class="col-b">Circle with pulsing ring</td>
+        <td class="col-c">Rounded rectangle + gold border</td>
+      </tr>
+      <tr>
+        <td>Play Button</td>
+        <td class="col-a">Circle, teal glow</td>
+        <td class="col-b">Circle, tri-color gradient glow</td>
+        <td class="col-c">Squircle, gold gradient</td>
+      </tr>
+      <tr>
+        <td>Playing Indicator</td>
+        <td class="col-a">Pulsing glow icon</td>
+        <td class="col-b">Animated bouncing bars</td>
+        <td class="col-c">Ornamental star (&#10022;)</td>
+      </tr>
+      <tr>
+        <td>Active Row</td>
+        <td class="col-a">Subtle teal background tint</td>
+        <td class="col-b">Left edge gradient bar</td>
+        <td class="col-c">Warm gold background tint</td>
+      </tr>
+      <tr>
+        <td>Progress Bar</td>
+        <td class="col-a">Teal gradient + knob glow</td>
+        <td class="col-b">Animated tri-color gradient</td>
+        <td class="col-c">Gold gradient, minimal</td>
+      </tr>
+      <tr>
+        <td>Effort Level</td>
+        <td class="col-a">Medium - evolutionary</td>
+        <td class="col-b">High - new palette + animations</td>
+        <td class="col-c">Medium-High - new palette + shapes</td>
+      </tr>
+      <tr>
+        <td>Cultural Resonance</td>
+        <td class="col-a">Neutral / universal</td>
+        <td class="col-b">Modern / tech-forward</td>
+        <td class="col-c">Deeply Islamic / traditional</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<section class="footer">
+  <p>Pick a direction, mix elements from multiple, or tell me to refine any of these further.</p>
+  <button class="cta">Let's Build It</button>
+</section>
+
+<!-- Audio bar animations for Direction B -->
+<style>
+  @keyframes bar1 { 0%,100%{height:10px} 50%{height:4px} }
+  @keyframes bar2 { 0%,100%{height:14px} 50%{height:7px} }
+  @keyframes bar3 { 0%,100%{height:8px} 50%{height:12px} }
+</style>
+
+<script>
+  function scrollTo_(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Active nav tracking
+  const sections = ['dirA', 'dirB', 'dirC', 'compare'];
+  const navBtns = document.querySelectorAll('.nav-btn');
+
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY + 200;
+    let active = 0;
+
+    sections.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el && el.offsetTop <= scrollY) active = i;
+    });
+
+    navBtns.forEach((btn, i) => {
+      btn.classList.toggle('active', i === active);
+    });
+  });
+</script>
+
+</body>
+</html>
