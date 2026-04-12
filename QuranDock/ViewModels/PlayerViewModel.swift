@@ -4,6 +4,7 @@ import Combine
 enum ExpandedSection: Equatable {
     case surahs
     case reciters
+    case customAudio
 }
 
 @MainActor
@@ -18,7 +19,16 @@ class PlayerViewModel: ObservableObject {
     @Published var repeatEnabled = false
     @Published var selectedMoshafIDs: [Int: Int] = [:] // reciterID -> moshafID
 
+    // Custom tracks
+    @Published var customTracks: [CustomTrack] = []
+    @Published var currentCustomTrack: CustomTrack?
+    @Published var isDownloadingYouTube = false
+    @Published var youtubeError: String?
+    @Published var pendingImport: PendingImport?
+
     let audioPlayer = AudioPlayerService()
+    private let trackStore = CustomTrackStore.shared
+    private let youtubeService = YouTubeService.shared
     private var cancellables = Set<AnyCancellable>()
 
     private let favoritesKey = "QuranDock.favoriteReciterIDs"
@@ -50,6 +60,11 @@ class PlayerViewModel: ObservableObject {
         selectedReciter = reciters.first(where: {
             $0.primaryMoshaf?.surahTotal == 114
         }) ?? reciters.first
+
+        // Load custom tracks
+        Task {
+            customTracks = await trackStore.loadTracks()
+        }
     }
 
     // MARK: - Moshaf Selection
@@ -97,6 +112,7 @@ class PlayerViewModel: ObservableObject {
               moshaf.hasSurah(surah.id) else { return }
         let padded = String(format: "%03d", surah.id)
         guard let url = URL(string: "\(moshaf.server)\(padded).mp3") else { return }
+        currentCustomTrack = nil
         currentSurah = surah
         audioPlayer.loadAndPlay(url: url)
     }
@@ -136,6 +152,125 @@ class PlayerViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Custom Track Playback
+
+    func playCustomTrack(_ track: CustomTrack) {
+        guard let url = track.fileURL else { return }
+        currentSurah = nil
+        currentCustomTrack = track
+        audioPlayer.loadAndPlay(url: url)
+    }
+
+    func playNextCustomTrack() {
+        guard let current = currentCustomTrack,
+              let idx = customTracks.firstIndex(where: { $0.id == current.id }),
+              idx + 1 < customTracks.count else { return }
+        playCustomTrack(customTracks[idx + 1])
+    }
+
+    func playPreviousCustomTrack() {
+        guard let current = currentCustomTrack,
+              let idx = customTracks.firstIndex(where: { $0.id == current.id }),
+              idx > 0 else { return }
+        playCustomTrack(customTracks[idx - 1])
+    }
+
+    func playNext() {
+        if currentCustomTrack != nil {
+            playNextCustomTrack()
+        } else {
+            playNextSurah()
+        }
+    }
+
+    func playPrevious() {
+        if currentCustomTrack != nil {
+            playPreviousCustomTrack()
+        } else {
+            playPreviousSurah()
+        }
+    }
+
+    // MARK: - Custom Track Management
+
+    func addCustomTrackFromFile(url: URL) {
+        Task {
+            do {
+                let fileName = try await trackStore.copyFileToDownloads(from: url)
+                let title = url.deletingPathExtension().lastPathComponent
+                pendingImport = PendingImport(
+                    fileName: fileName,
+                    defaultTitle: title,
+                    source: .localFile(originalName: url.lastPathComponent)
+                )
+            } catch {
+                print("[CustomTrack] Failed to import file: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    func addCustomTrackFromYouTube(urlString: String) {
+        let trimmed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard youtubeService.isValidYouTubeURL(trimmed) else {
+            youtubeError = "Invalid YouTube URL."
+            return
+        }
+
+        isDownloadingYouTube = true
+        youtubeError = nil
+
+        Task {
+            do {
+                let result = try await youtubeService.downloadAudio(from: trimmed)
+                isDownloadingYouTube = false
+                pendingImport = PendingImport(
+                    fileName: result.fileName,
+                    defaultTitle: result.title,
+                    source: .youtube(url: trimmed)
+                )
+            } catch {
+                youtubeError = error.localizedDescription
+                isDownloadingYouTube = false
+            }
+        }
+    }
+
+    func savePendingTrack(title: String, reciterName: String?, surahId: Int?, qiraah: Qiraah?) {
+        guard let pending = pendingImport else { return }
+        let track = CustomTrack(
+            title: title,
+            fileName: pending.fileName,
+            source: pending.source,
+            reciterName: reciterName,
+            surahId: surahId,
+            qiraah: qiraah
+        )
+        customTracks.insert(track, at: 0)
+        pendingImport = nil
+        Task { await trackStore.saveTracks(customTracks) }
+    }
+
+    func cancelPendingImport() {
+        guard let pending = pendingImport else { return }
+        Task { await trackStore.deleteFile(named: pending.fileName) }
+        pendingImport = nil
+    }
+
+    func removeCustomTrack(_ track: CustomTrack) {
+        // Stop playback if this track is playing
+        if currentCustomTrack?.id == track.id {
+            audioPlayer.stop()
+            currentCustomTrack = nil
+        }
+
+        customTracks.removeAll { $0.id == track.id }
+
+        Task {
+            await trackStore.deleteFile(named: track.fileName)
+            await trackStore.saveTracks(customTracks)
+        }
+    }
+
     // MARK: - Repeat
 
     func toggleRepeat() {
@@ -143,10 +278,18 @@ class PlayerViewModel: ObservableObject {
     }
 
     private func handleTrackFinished() {
-        if repeatEnabled, let surah = currentSurah {
-            playSurah(surah)
+        if repeatEnabled {
+            if let track = currentCustomTrack {
+                playCustomTrack(track)
+            } else if let surah = currentSurah {
+                playSurah(surah)
+            }
         } else {
-            playNextSurah()
+            if currentCustomTrack != nil {
+                playNextCustomTrack()
+            } else {
+                playNextSurah()
+            }
         }
     }
 

@@ -61,6 +61,12 @@ struct ContentView: View {
                 .frame(width: 0.5, height: 18)
 
             segmentTab("Surahs", icon: "book.fill", section: .surahs)
+
+            Rectangle()
+                .fill(Color.primary.opacity(0.08))
+                .frame(width: 0.5, height: 18)
+
+            segmentTab("My Audio", icon: "music.note.list", section: .customAudio)
         }
         .padding(3)
         .background(
@@ -147,6 +153,8 @@ struct ContentView: View {
             SurahListView()
         case .reciters:
             ReciterListView()
+        case .customAudio:
+            CustomAudioView()
         }
     }
 }

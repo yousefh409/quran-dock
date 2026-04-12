@@ -4,6 +4,11 @@ struct NowPlayingView: View {
     @EnvironmentObject var viewModel: PlayerViewModel
     var isCompact: Bool = false
 
+    /// Whether anything is currently loaded (surah or custom track)
+    private var hasTrack: Bool {
+        viewModel.currentSurah != nil || viewModel.currentCustomTrack != nil
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             if isCompact {
@@ -21,21 +26,33 @@ struct NowPlayingView: View {
 
     private var fullLayout: some View {
         VStack(spacing: 10) {
-            // Centered surah info
+            // Centered track info
             VStack(spacing: 4) {
-                if let surah = viewModel.currentSurah {
+                if let track = viewModel.currentCustomTrack {
+                    Text(track.displayTitle)
+                        .font(track.surahId != nil
+                            ? .custom(AppConstants.amiriQuranFontName, size: 28)
+                            : .system(size: 18, weight: .semibold, design: .serif))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+
+                    Text(track.displaySubtitle)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                } else if let surah = viewModel.currentSurah {
                     Text(surah.nameArabic)
                         .font(.custom(AppConstants.amiriQuranFontName, size: 28))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
 
                     Text(surah.nameSimple)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: 13, weight: .medium, design: .serif))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 } else {
                     Text("Quran Dock")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 16, weight: .semibold, design: .serif))
                         .foregroundStyle(.primary)
 
                     Text("Select a surah to begin")
@@ -43,7 +60,7 @@ struct NowPlayingView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                if let reciter = viewModel.selectedReciter {
+                if viewModel.currentCustomTrack == nil, let reciter = viewModel.selectedReciter {
                     HStack(spacing: 5) {
                         Text(reciter.name)
                             .font(.system(size: 10, weight: .medium))
@@ -59,7 +76,7 @@ struct NowPlayingView: View {
             .frame(maxWidth: .infinity)
 
             // Seek bar
-            if viewModel.currentSurah != nil {
+            if hasTrack {
                 SeekBarView()
                     .transition(.opacity)
             }
@@ -78,7 +95,7 @@ struct NowPlayingView: View {
         .background(
             LinearGradient(
                 colors: [
-                    AppConstants.accentColor.opacity(viewModel.currentSurah != nil ? 0.05 : 0),
+                    AppConstants.accentColor.opacity(hasTrack ? 0.05 : 0),
                     Color.clear
                 ],
                 startPoint: .top,
@@ -92,9 +109,20 @@ struct NowPlayingView: View {
 
     private var compactLayout: some View {
         HStack(spacing: 10) {
-            // Small surah info — tappable to collapse
+            // Small track info — tappable to collapse
             VStack(alignment: .leading, spacing: 1) {
-                if let surah = viewModel.currentSurah {
+                if let track = viewModel.currentCustomTrack {
+                    Text(track.displayTitle)
+                        .font(track.surahId != nil
+                            ? .custom(AppConstants.amiriQuranFontName, size: 14)
+                            : .system(size: 12, weight: .medium))
+                        .lineLimit(1)
+
+                    Text(track.displaySubtitle)
+                        .font(.system(size: 9))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                } else if let surah = viewModel.currentSurah {
                     Text(surah.nameArabic)
                         .font(.custom(AppConstants.amiriQuranFontName, size: 14))
                         .lineLimit(1)
@@ -105,7 +133,7 @@ struct NowPlayingView: View {
                         .lineLimit(1)
                 } else {
                     Text("Quran Dock")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 12, weight: .medium, design: .serif))
                 }
             }
             .contentShape(Rectangle())
@@ -127,7 +155,7 @@ struct NowPlayingView: View {
 
     private var compactControls: some View {
         HStack(spacing: 14) {
-            Button { viewModel.playPreviousSurah() } label: {
+            Button { viewModel.playPrevious() } label: {
                 Image(systemName: "backward.end.fill")
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
@@ -153,7 +181,7 @@ struct NowPlayingView: View {
             }
             .buttonStyle(.plain)
 
-            Button { viewModel.playNextSurah() } label: {
+            Button { viewModel.playNext() } label: {
                 Image(systemName: "forward.end.fill")
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
@@ -180,14 +208,14 @@ struct NowPlayingView: View {
 
             // Center controls
             HStack(spacing: 24) {
-                Button { viewModel.playPreviousSurah() } label: {
+                Button { viewModel.playPrevious() } label: {
                     Image(systemName: "backward.end.fill")
                         .font(.system(size: 16))
                         .foregroundStyle(.primary.opacity(0.6))
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.plain)
-                .disabled(viewModel.currentSurah == nil)
+                .disabled(!hasTrack)
 
                 Button { viewModel.audioPlayer.togglePlayPause() } label: {
                     if viewModel.audioPlayer.isLoading {
@@ -209,16 +237,16 @@ struct NowPlayingView: View {
                     }
                 }
                 .buttonStyle(.plain)
-                .disabled(viewModel.currentSurah == nil)
+                .disabled(!hasTrack)
 
-                Button { viewModel.playNextSurah() } label: {
+                Button { viewModel.playNext() } label: {
                     Image(systemName: "forward.end.fill")
                         .font(.system(size: 16))
                         .foregroundStyle(.primary.opacity(0.6))
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.plain)
-                .disabled(viewModel.currentSurah == nil)
+                .disabled(!hasTrack)
             }
 
             Spacer()

@@ -10,6 +10,11 @@ targets:
     platform: macOS
     sources:
       - path: QuranDock
+    postCompileScripts:
+      - script: |
+          cp "${SRCROOT}/QuranDock/Resources/yt-dlp" "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/yt-dlp"
+          chmod +x "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/yt-dlp"
+        name: Bundle yt-dlp
     info:
       path: QuranDock/Info.plist
     settings:
