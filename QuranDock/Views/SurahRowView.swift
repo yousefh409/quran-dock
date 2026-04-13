@@ -30,7 +30,7 @@ struct SurahRowView: View {
             // English info
             VStack(alignment: .leading, spacing: 2) {
                 Text(surah.nameSimple)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(size: 13, weight: .medium, design: .serif))
                     .foregroundColor(isPlaying ? AppConstants.accentColor : (isAvailable ? .primary : Color.secondary.opacity(0.5)))
 
                 Text("\(surah.versesCount) Ayahs")

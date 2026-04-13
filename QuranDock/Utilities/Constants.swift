@@ -8,8 +8,9 @@ enum AppConstants {
     static let expandedListHeight: CGFloat = 420
 
     // MARK: - Colors
-    static let accentColor = Color(red: 0.13, green: 0.55, blue: 0.47)
-    static let accentColorLight = Color(red: 0.18, green: 0.77, blue: 0.63)
+    // Warm gold/amber inspired by Islamic manuscript illumination
+    static let accentColor = Color(red: 0.77, green: 0.64, blue: 0.40)       // #C4A366
+    static let accentColorLight = Color(red: 0.85, green: 0.73, blue: 0.50)   // #D9BA80
 
     // MARK: - Typography
     static let amiriQuranFontName = "Amiri Quran"

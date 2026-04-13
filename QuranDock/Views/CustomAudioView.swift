@@ -239,93 +239,82 @@ struct CustomAudioView: View {
     // MARK: - Import Section
 
     private var importSection: some View {
-        VStack(spacing: 8) {
-            dropZone
-            youtubeInput
-        }
-    }
-
-    private var dropZone: some View {
-        Button {
-            openFilePicker()
-        } label: {
-            VStack(spacing: 4) {
-                Image(systemName: "arrow.down.doc.fill")
-                    .font(.system(size: 16))
-                    .foregroundStyle(isDropTargeted ? AppConstants.accentColor : .secondary.opacity(0.5))
-
-                Text("Drop audio file or click to browse")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(.secondary.opacity(0.7))
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 56)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(
-                        isDropTargeted ? AppConstants.accentColor : Color.primary.opacity(0.1),
-                        style: StrokeStyle(lineWidth: 1.5, dash: [6, 4])
-                    )
-                    .background(
-                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                            .fill(isDropTargeted ? AppConstants.accentColor.opacity(0.05) : Color.clear)
-                    )
-            )
-        }
-        .buttonStyle(.plain)
-        .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in
-            handleDrop(providers)
-        }
-    }
-
-    private var youtubeInput: some View {
         HStack(spacing: 6) {
-            Image(systemName: "play.rectangle.fill")
-                .font(.system(size: 11))
-                .foregroundStyle(.secondary.opacity(0.5))
-
-            TextField("YouTube URL", text: $youtubeURL)
-                .textFieldStyle(.plain)
-                .font(.system(size: 11))
-                .onSubmit { addFromYouTube() }
-
-            if viewModel.isDownloadingYouTube {
-                ProgressView()
-                    .scaleEffect(0.5)
-                    .frame(width: 16, height: 16)
-            } else {
-                Button {
-                    addFromYouTube()
-                } label: {
-                    Text("Add")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(
-                            Capsule()
-                                .fill(youtubeURL.isEmpty ? Color.secondary.opacity(0.3) : AppConstants.accentColor)
-                        )
-                }
-                .buttonStyle(.plain)
-                .disabled(youtubeURL.isEmpty)
+            // Compact drop/browse button
+            Button {
+                openFilePicker()
+            } label: {
+                Image(systemName: "arrow.down.doc.fill")
+                    .font(.system(size: 13))
+                    .foregroundStyle(isDropTargeted ? AppConstants.accentColor : .secondary.opacity(0.5))
+                    .frame(width: 32, height: 32)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .strokeBorder(
+                                isDropTargeted ? AppConstants.accentColor : Color.primary.opacity(0.1),
+                                style: StrokeStyle(lineWidth: 1.5, dash: [4, 3])
+                            )
+                            .background(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .fill(isDropTargeted ? AppConstants.accentColor.opacity(0.05) : Color.clear)
+                            )
+                    )
             }
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 7)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color.primary.opacity(0.04))
-        )
-        .overlay {
-            if let error = viewModel.youtubeError {
-                VStack {
-                    Spacer()
-                    Text(error)
-                        .font(.system(size: 9))
-                        .foregroundStyle(.red.opacity(0.8))
-                        .lineLimit(1)
-                        .offset(y: 14)
+            .buttonStyle(.plain)
+            .help("Drop audio file or click to browse")
+            .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in
+                handleDrop(providers)
+            }
+
+            // YouTube input
+            HStack(spacing: 6) {
+                Image(systemName: "play.rectangle.fill")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary.opacity(0.5))
+
+                TextField("YouTube URL", text: $youtubeURL)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 11))
+                    .onSubmit { addFromYouTube() }
+
+                if viewModel.isDownloadingYouTube {
+                    ProgressView()
+                        .scaleEffect(0.5)
+                        .frame(width: 16, height: 16)
+                } else {
+                    Button {
+                        addFromYouTube()
+                    } label: {
+                        Text("Add")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(
+                                Capsule()
+                                    .fill(youtubeURL.isEmpty ? Color.secondary.opacity(0.3) : AppConstants.accentColor)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(youtubeURL.isEmpty)
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.primary.opacity(0.04))
+            )
+            .overlay {
+                if let error = viewModel.youtubeError {
+                    VStack {
+                        Spacer()
+                        Text(error)
+                            .font(.system(size: 9))
+                            .foregroundStyle(.red.opacity(0.8))
+                            .lineLimit(1)
+                            .offset(y: 14)
+                    }
                 }
             }
         }
